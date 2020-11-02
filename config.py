@@ -1,4 +1,4 @@
-#python3
+#usr/bin/python3
 from pathlib import Path
 import csv
 import datetime
@@ -41,10 +41,18 @@ def FileChk(path):
         f = open(path, "a")
     return f
 #
+def WriteRow(error,event="E03"):
+    #event = "E03"
+    now = datetime.datetime.now()
+    now = now.strftime("%Y/%m/%d/ %H:%M:%S")
+    LineOfFile = now + "," + event + "," + error
+    return LineOfFile
+#
 #print("ProdLog_" + GetDate("folder") + ".csv")
 #fields = "Test" + GetDate("folder")
 cesta = FolderChk("/Users/げんちゃん/Server")
-print (type(cesta))
+print (WriteRow(Get_Err(2)))
+#print (type(cesta))
 #print (type(Path("/Users/げんちゃん/Server")))
 #print (GetDate(""))
 #print (ErrorList("error_p1.csv"))
