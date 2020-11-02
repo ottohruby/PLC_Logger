@@ -4,10 +4,11 @@ import os
 import time
 import csv
 from _thread import *
+from config import *
 
 ServerSocket = socket.socket()
-host = 'localhost'
-port = 1233
+host = '0.0.0.0'
+port = 61000
 ThreadCount = 0
 try:
     ServerSocket.bind((host, port))
@@ -18,16 +19,21 @@ print('Waitiing for a Connection..')
 ServerSocket.listen(5)
 
 def threaded_client(connection):
-    connection.send(str.encode('Welcome to the Server\n'))
+    #connection.send(str.encode('Welcome to the Server\n'))
     while True:
-        data = connection.recv(2048)
+        data = connection.recv(512)
+        LineOfLog = CreateRow(Get_Err(data))
+        WriteRow(LineOfLog)
+        time.sleep(0.1)
+        #read and split data from client
+        #first: error no., second: model, third: process no.
         reply = 'Server Says: ' + data.decode('utf-8')
         if not data:
             break
-        connection.sendall(str.encode(reply))
+        connection.send(str.encode(reply))
     connection.close()
 #
-def write_log(process,data):
+#def write_log(process,data):
 
 while True:
     try:
@@ -36,7 +42,8 @@ while True:
         start_new_thread(threaded_client, (Client, ))
         ThreadCount += 1
         print('Thread Number: ' + str(ThreadCount))
-    except socket.error as e+
+    except socket.error as e:
         print(str(e))
         time.sleep(2)
+
 ServerSocket.close()

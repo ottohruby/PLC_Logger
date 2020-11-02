@@ -3,6 +3,7 @@ from pathlib import Path
 import csv
 import datetime
 import pandas as pd
+import csv
 #
 def GetDate(mode):
     if mode == "file":
@@ -20,8 +21,7 @@ def ErrorList(path):
 #
 def Get_Err(data):
     err = ErrorList("error_p1.csv")
-    return err.iloc[int(data),2]
-    pass
+    return str(err.iloc[int(data),2])
 #
 def FolderChk(path):
     path = path + "/" + GetDate("folder")
@@ -41,22 +41,31 @@ def FileChk(path):
         f = open(path, "a")
     return f
 #
-def WriteRow(error,event="E03"):
+def CreateRow(error,event="E03"):
     #event = "E03"
     now = datetime.datetime.now()
     now = now.strftime("%Y/%m/%d/ %H:%M:%S")
     LineOfFile = now + "," + event + "," + error
     return LineOfFile
 #
+def WriteRow(data):
+    DefaultPath = "/Users/げんちゃん/Server"
+    file = FolderChk(DefaultPath)
+    file.write("¥n")
+    file.write(data + "¥n")
+    file.close()
+
 #print("ProdLog_" + GetDate("folder") + ".csv")
 #fields = "Test" + GetDate("folder")
-cesta = FolderChk("/Users/げんちゃん/Server")
-print (WriteRow(Get_Err(2)))
+#cesta = FolderChk("/Users/げんちゃん/Server")
+#print (WriteRow(Get_Err(2)))
+#data = CreateRow(Get_Err(3))
+#WriteRow(data)
 #print (type(cesta))
 #print (type(Path("/Users/げんちゃん/Server")))
 #print (GetDate(""))
 #print (ErrorList("error_p1.csv"))
 #new_line = csv.writer(y,)
 #if __name__ == "__main__":
-    #import sys
-    #FolderChk(sys.arg[1])
+#    import sys
+#    FolderChk(sys.arg[1])
