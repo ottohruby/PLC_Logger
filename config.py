@@ -23,7 +23,11 @@ def Get_Err(data):
     err = ErrorList("error_p1.csv")
     return str(err.iloc[int(data),2])
 #
-def FolderChk(path):
+def FolderChk(path,model,process):
+    #Todo:
+    #1, add check for process folder
+    #2, add check for model forlder
+    #3, process and model pass as arguments
     path = path + "/" + GetDate("folder")
     new_dir = Path(path)
     if not new_dir.exists():
@@ -52,7 +56,6 @@ def WriteRow(data):
     DefaultPath = "/Users/げんちゃん/Server"
     file = FolderChk(DefaultPath)
     file.write("¥n")
-    file.write(data + "¥n")
     file.close()
 
 #print("ProdLog_" + GetDate("folder") + ".csv")
