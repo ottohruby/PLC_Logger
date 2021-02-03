@@ -1,8 +1,8 @@
 import socket
 
 ClientSocket = socket.socket()
-host = '127.0.0.1'
-port = 61000
+host = '10.54.2.225'
+port = 4200
 
 print('Waiting for connection')
 try:
@@ -15,6 +15,6 @@ while True:
     Input = input('Say Something: ')
     ClientSocket.send(str.encode(Input))
     Response = ClientSocket.recv(512)
-    print(Response.decode('utf-8'))
+    print(Response)
 
 ClientSocket.close()
