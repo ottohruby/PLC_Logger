@@ -53,7 +53,8 @@ class ThreadedServer():
             try:
                 LineOfLog = CreateRow(Get_Err(data_parsed[0],data_parsed[1]))
                 WriteRow(LineOfLog, data_parsed[1])
-                print ("Process"+str(data_parsed[1])+" had error: "+LineOfLog)
+                process = Get_Machine_From_Process(data_parsed[1])
+                print ("Process"+str(process)+" had error: "+LineOfLog)
             except Exception as e:
                 print(e)
                 time.sleep(0.1)

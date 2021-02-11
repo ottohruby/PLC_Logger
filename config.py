@@ -4,88 +4,10 @@ import datetime
 import pandas as pd
 import platform
 import numpy as np
+import structures
 #
 class ConfigError(Exception):
     pass
-
-#
-
-##class Config():
-##    def __init__(self):
-##        self.ErrorCsv = "error_p1.csv"
-##        self.FileName = "ProdLog_{}.csv"
-##        systemName = platform.system()
-##        if systemName == "Windows":
-##            self.FolderName = "C:/ShareData/Process{}/533/ProdLog/{}"
-##        else:
-##            self.FolderName = ""
-##            raise ConfigError(f"This system ({systemName}) is not supported")
-##
-##    def get_file_date(self):
-##        x = datetime.date.today()
-##        return (x.strftime("%y%m%d"))
-##
-##    def get_folder_date(self):
-##        x = datetime.date.today()
-##        return (x.strftime("%y%m"))
-##
-##    def folder_check(self, path):
-##        print(path)
-##        new_dir = Path(path)
-##        try:
-##            if not new_dir.exists():
-##                new_dir.mkdir(parents=True)
-##            else:
-##                pass
-##        except Exception as e:
-##            raise ConfigError(f"Error in FolderChk({path}): The path of file is not correct")
-##
-##    def file_write(self, path, row):
-##        print(path)
-##        try:
-##            if not Path(path).is_file():
-##                f = open(path, "w")
-##            else:
-##                f = open(path, "a")
-##        except Exception as e:
-##            raise ConfigError(f"ERROR in FileChk({path}): Could not open the file")
-##
-##        f.write("\n")
-##        f.write(row + "\n")
-##        f.close()
-##
-##    def get_error_list(self):
-##        try:
-##            return pd.read_csv(self.ErrorCsv, skiprows=4)
-##        except Exception as e:
-##            raise ConfigError(f"ERROR in ErrorList({self.ErrorCsv}): Could not extract specified csv file")
-##
-##    def get_error(self, err):
-##        list = self.get_error_list()
-##        try:
-##            return str(list.iloc[int(err), 2])
-##        except Exception as e:
-##            raise ConfigError(f"Error in Get_Err({err}): Could not find an error at this location in csv file")
-##
-##    def create_row(self, error, event = "E03"):
-##        if not isinstance(error, str) or not isinstance(event, str):
-##            raise ConfigError(f"ERROR in CreateRow({error},{event}): Parameters must be strings")
-##
-##        now = datetime.datetime.now()
-##        now = now.strftime("%Y/%m/%d/ %H:%M:%S")
-##        LineOfFile = now + "," + event + "," + str(error)
-##        return LineOfFile
-##
-##
-##
-##    def write_row(self, data):
-##        error = self.get_error(data[0])
-##        row = self.create_row(error)
-##
-##        fileName = self.FileName.format(self.get_file_date())
-##        fileFolder = self.FolderName.format(data[1], self.get_folder_date())
-##        filePath = fileFolder +"/"+  fileName
-##        self.file_write(filePath, row)
 
 def GetDate(mode):
     if mode == "file":
@@ -108,6 +30,13 @@ def ErrorList(path):
     except Exception as e:
         raise ConfigError(f"ERROR in ErrorList({path}): Could not extract specified csv file")
 #
+def Get_Machine_From_Process(processNo):
+    try:
+        return structures.PROCESS_NO_DIC[int(processNo)]
+    except KeyError as e:
+        print(f"Get_Device_Fromm_Process({processNo}): A machine with this processNo is not defined")
+        return processNo
+
 def Get_Err(data,process):
     err = ErrorList("Errors/error_p"+str(process)+".csv")
     try:
