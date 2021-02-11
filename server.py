@@ -1,4 +1,3 @@
-
 #python3
 import socket
 import time
@@ -11,7 +10,7 @@ def ParsePLCResponse(aData):
     errorNo = int.from_bytes(aData[0:2], byteorder='little', signed=False)
     processNo = int.from_bytes(aData[2:4], byteorder='little', signed=False)
     modelNo = int.from_bytes(aData[4:6], byteorder='little', signed=False)
-    print(f"Parsed data- ErrorNo: {errorNo}; ProcessNo: {processNo}; ModelNo: {modelNo}")
+    #print(f"Parsed data- ErrorNo: {errorNo}; ProcessNo: {processNo}; ModelNo: {modelNo}")
     return errorNo,processNo,modelNo
 
 
@@ -23,7 +22,6 @@ class ThreadedServer():
 
         try:
             self.ServerSocket.bind((host, port))
-            print('Listening at port:',port)
         except socket.error as e:
             print(str(e))
 
@@ -36,6 +34,7 @@ class ThreadedServer():
                 print(f"Connected to: {address[0]}:{address[1]}")
                 threading.Thread(target=self.listenClient, args=(client,)).start()
                 print(f"Number active of threads: {threading.active_count()}")
+                print(f"List of threads: {threading.enumerate()}")
             except socket.error as e:
                 print(str(e))
                 time.sleep(2)
@@ -48,13 +47,13 @@ class ThreadedServer():
             except socket.error:
                 print("Could not receive data from PLC")
                 break
-
-            print(f"Received data: {data}")
+            #print(f"Received data: {data}")
             data_parsed = ParsePLCResponse(data)  # words to tuple (ErrorNo,ProcessNo,ModelNo)
 
             try:
-                LineOfLog = CreateRow(Get_Err(data_parsed[0]))
-                WriteRow(LineOfLog)
+                LineOfLog = CreateRow(Get_Err(data_parsed[0],data_parsed[1]))
+                WriteRow(LineOfLog, data_parsed[1])
+                print ("Process"+str(data_parsed[1])+" had error: "+LineOfLog)
             except Exception as e:
                 print(e)
                 time.sleep(0.1)
@@ -62,16 +61,17 @@ class ThreadedServer():
             reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
             if not data:
                 break
-            print(f"Server response: {reply}")
+            #print(f"Server response: {reply}")
             connection.send(reply)
         connection.close()
 
 
 if __name__ == "__main__":
     HOST = '0.0.0.0'
-    PORT = 4200
+    PORT = 4097
 
-    ThreadedServer(HOST,PORT).listen()
+    server = ThreadedServer(HOST,PORT)
+    server.listen()
 
 
 
