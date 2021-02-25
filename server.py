@@ -4,12 +4,13 @@ import time
 from config import *
 import threading
 import logging
+
 #Initialization of logging into log fie
 logging.basicConfig(filename='sys_log/'+GetDate("file")+'.log',encoding='utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 def ParsePLCResponse(aData):
     # read and split data from client
-    # first: error no., second: model, third: process no.
+    # first: error no., second: process, third: model no.
     errorNo = int.from_bytes(aData[0:2], byteorder='little', signed=False)
     processNo = int.from_bytes(aData[2:4], byteorder='little', signed=False)
     modelNo = int.from_bytes(aData[4:6], byteorder='little', signed=False)
@@ -19,12 +20,20 @@ def ParsePLCResponse(aData):
 
 class ThreadedServer():
     def __init__(self, host, port):
+        """
+        Init server
+
+        :param host: IP address of server
+        :param port: Port number of server
+        """
+
         self.host = host
         self.port = port
         self.ServerSocket = socket.socket()
 
+        # try to bind the socket
         try:
-            #self.ServerSocket(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            #self.ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.ServerSocket.bind((host, port))
             logging.info("Socket was binded %s",port)
         except socket.error as e:
@@ -32,6 +41,12 @@ class ThreadedServer():
             print(str(e))
 
     def listen(self):
+        """
+        This function listens for new clients
+        If a new client is found then a new thread is started
+        The new thread calls listenClient function
+        """
+
         print('Waiting for a Connection..')
         logging.info("Waiting for connection")
         self.ServerSocket.listen(5)
@@ -50,8 +65,16 @@ class ThreadedServer():
         self.ServerSocket.close()
 
     def listenClient(self, connection):
+        """
+        This function runs for each connected client
+        It serves to receive data, process data and send a response back to client
+
+        :param connection: Client's socket
+        """
         while True:
-            try:
+            data = None
+
+            try: # receive data
                 data = connection.recv(6)
                 logging.info("Received data: %s Lenght of data: %s",data,len(data))
             except socket.error:
@@ -62,17 +85,18 @@ class ThreadedServer():
             #print(f"Received data: {data}")
             data_parsed = ParsePLCResponse(data)  # words to tuple (ErrorNo,ProcessNo,ModelNo)
 
-            try:
+            try: # process data
                 LineOfLog = CreateRow(Get_Err(data_parsed[0],data_parsed[1]))
                 WriteRow(LineOfLog, data_parsed[1])
                 process = Get_Machine_From_Process(data_parsed[1])
                 print (str(process)+" had error: "+LineOfLog)
             except Exception as e:
-                logging.info('Something happned in Config.py')
+                logging.info('Something happened in Config.py')
                 logging.error(e, exc_info=True)
                 print(e)
                 time.sleep(0.1)
 
+            # send a response
             reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
             if not data:
                 logging.info("Data was not correct, check data!")
@@ -80,7 +104,8 @@ class ThreadedServer():
                 break
             #print(f"Server response: {reply}")
             connection.send(reply)
-            logging.info("Reply from server to PLC was %s",reply)   
+            logging.info("Reply from server to PLC was %s",reply)
+
         connection.close()
         logging.debug("Connection was closed")
 

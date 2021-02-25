@@ -10,6 +10,13 @@ class ConfigError(Exception):
     pass
 
 def GetDate(mode):
+    """
+    Return date based on selected mode
+
+    :param mode: Selected mode (file or folder)
+    :return: Current date
+    """
+
     if mode == "file":
         x = datetime.date.today()
         return (x.strftime("%y%m%d"))
@@ -23,6 +30,13 @@ def LoadConfig():
     pass
 
 def ErrorList(path):
+    """
+    Return data frame based on given path
+
+    :param path: Path to csv file
+    :return: Data frame
+    """
+
     ListOfNames = ['Index','ErrorEng','ErrorCz','Data4','Data5','Data6','Data7','Data8','Data9','Data10','Data11']
     try:
         df = pd.read_csv(path, names = ListOfNames)
@@ -31,6 +45,13 @@ def ErrorList(path):
         raise ConfigError(f"ERROR in ErrorList({path}): Could not extract specified csv file")
 #
 def Get_Machine_From_Process(processNo):
+    """
+    Return the machine name based on given number of process
+
+    :param processNo: Number of process
+    :return: Machine name
+    """
+
     try:
         return structures.PROCESS_NO_DIC[int(processNo)]
     except KeyError as e:
@@ -38,6 +59,14 @@ def Get_Machine_From_Process(processNo):
         return processNo
 
 def Get_Err(data,process):
+    """
+    Return error description based on given error number
+
+    :param data: Error number
+    :param process: Number of process
+    :return: Error description
+    """
+
     err = ErrorList("Errors/error_p"+str(process)+".csv")
     try:
         return err.iat[int(data-1),1]    #Decrement value to compansate counting from 0 
@@ -45,6 +74,14 @@ def Get_Err(data,process):
         raise ConfigError(f"Error in Get_Err({data}): Could not find an error at this location in csv file")
 #
 def FolderChk(path):
+    """
+    Return the file from given path
+    If the parent folders does not exists they will be created
+
+    :param path: Default path
+    :return: Path to file
+    """
+
     path = path + "/" + GetDate("folder")
     new_dir = Path(path)
     try:
@@ -59,6 +96,13 @@ def FolderChk(path):
 
 #
 def FileChk(path):
+    """
+    Return file object from given path
+
+    :param path: Path to file
+    :return: File
+    """
+
     filename = "ProdLog_" + GetDate("file") + ".csv"
     path = path +"/"+  filename
     try:
@@ -73,7 +117,14 @@ def FileChk(path):
 
 #
 def CreateRow(error,event="E03"):
-    # event = "E03"
+    """
+    Create a new row from input information
+
+    :param error: Error description
+    :param event: Event description
+    :return: Line of file which is going to be logged
+    """
+
     if not isinstance(error, str) or not isinstance(event, str):
         raise ConfigError(f"ERROR in CreateRow({error},{event}): Parameters must be strings")
 
@@ -83,6 +134,14 @@ def CreateRow(error,event="E03"):
     return LineOfFile
 #
 def WriteRow(data,processNo,model="533"):
+    """
+    Write data to file
+
+    :param data: Line which will be logged
+    :param processNo: Process number
+    :param model: Model number
+    """
+
     systemName = platform.system()
     if systemName == "Windows":
         DefaultPath = "C:/ShareData/Process{}/ProdLog".format(processNo)
@@ -111,7 +170,6 @@ def WriteRow(data,processNo,model="533"):
 #    import sys
 #    FolderChk(sys.arg[1])
 # s = "C:\ShareData\Process{PROCESS NO}\533\ProdLog\{FOLDER DATE}"
-
 
 #config = Config()
 try:
