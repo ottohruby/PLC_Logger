@@ -1,7 +1,8 @@
 import socket
+import time
 
 ClientSocket = socket.socket()
-host = '10.54.2.225'
+host = '127.0.0.1'
 port = 4097
 
 print('Waiting for connection')
@@ -12,9 +13,13 @@ except socket.error as e:
 
 #Response = ClientSocket.recv(1024)
 while True:
-    Input = input('Say Something: ')
-    ClientSocket.send(int.to_bytes(int(Input), length=12, byteorder='little', signed=False))
-    Response = ClientSocket.recv(12)
+    input_string = input("Enter a list of elements separated by space [iCommSen iData1Sen iData2Sen]:")
+    userList = input_string.split()
+    data = [int(i) for i in userList]
+    Cmd = b"".join(int.to_bytes(d, length=2, byteorder='little', signed=False) for d in data)
+
+    ClientSocket.send(Cmd)
+    Response = ClientSocket.recv(6)
     print(Response)
 
-ClientSocket.close()
+
