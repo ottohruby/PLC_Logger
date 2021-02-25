@@ -6,7 +6,7 @@ import threading
 import logging
 
 #Initialization of logging into log fie
-logging.basicConfig(filename='sys_log/'+GetDate("file")+'.log',encoding='utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
+logging.basicConfig(filename='sys_log/'+GetDate("file")+'.log', encoding = 'utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 def ParsePLCResponse(aData):
     # read and split data from client
@@ -77,9 +77,9 @@ class ThreadedServer():
             try: # receive data
                 data = connection.recv(6)
                 logging.info("Received data: %s Lenght of data: %s",data,len(data))
-            except socket.error:
+            except socket.error as e:
                 logging.info("Could not received data from PLC, given data %s",data)
-                logging.error(socket.error)
+                logging.error(e, exc_info=True)
                 print("Could not receive data from PLC")
                 break
             #print(f"Received data: {data}")
