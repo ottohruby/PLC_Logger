@@ -1,8 +1,8 @@
 import socket
 
 ClientSocket = socket.socket()
-host = '127.0.0.1'
-port = 61000
+host = '10.54.2.225'
+port = 4097
 
 print('Waiting for connection')
 try:
@@ -13,8 +13,8 @@ except socket.error as e:
 #Response = ClientSocket.recv(1024)
 while True:
     Input = input('Say Something: ')
-    ClientSocket.send(str.encode(Input))
-    Response = ClientSocket.recv(512)
-    print(Response.decode('utf-8'))
+    ClientSocket.send(int.to_bytes(int(Input), length=12, byteorder='little', signed=False))
+    Response = ClientSocket.recv(12)
+    print(Response)
 
 ClientSocket.close()
