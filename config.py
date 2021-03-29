@@ -34,15 +34,19 @@ def Get_Machine_From_Process(processNo):
     try:
         return structures.PROCESS_NO_DIC[int(processNo)]
     except KeyError as e:
-        print(f"Get_Device_Fromm_Process({processNo}): A machine with this processNo is not defined")
+        print(f"Get_Device_From_Process({processNo}): A machine with this processNo is not defined")
         return processNo
 
 def Get_Err(data,process):
-    err = ErrorList("Errors/error_p"+str(process)+".csv")
+    err_df = ErrorList("Errors/error_p"+str(process)+".csv")
     try:
-        return err.iat[int(data-1),1]    #Decrement value to compansate counting from 0 
+        rows = err_df.loc[err_df['Index'] == data]
+        if len(rows) == 1:
+            return rows['ErrorEng'].iloc[0]
+        else:
+            raise ConfigError()
     except Exception as e:
-        raise ConfigError(f"Error in Get_Err({data}): Could not find an error at this location in csv file")
+        raise ConfigError(f"Error in Get_Err({data}): Could not find an error with given code in csv file")
 #
 def FolderChk(path):
     path = path + "/" + GetDate("folder")
@@ -111,13 +115,14 @@ def WriteRow(data,processNo,model="533"):
 #    import sys
 #    FolderChk(sys.arg[1])
 # s = "C:\ShareData\Process{PROCESS NO}\533\ProdLog\{FOLDER DATE}"
+# data = 55
+# process = 999
+# try:
+#     print("nove: " + Get_Err(data,process))
+# except Exception as e:
+#     print(e)
 
 
-#config = Config()
-try:
-    test = 1
-    #config.write_row((1,2,3))
-    #output = Get_Err(22,1)
-    #print (output)
-except Exception as e:
-    print(e)
+# df = ErrorList("Errors/error_p999.csv")
+# df1 = df[df.duplicated('Index', keep=False)].sort_values('ErrorEng')
+# print(df1)
