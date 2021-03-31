@@ -33,39 +33,47 @@ def ProcessData(data):
         print(e)
         time.sleep(0.1)
 
-class MyTCPHandler(socketserver.BaseRequestHandler):
-    """
-    The request handler class for our server.
 
-    It is instantiated once per connection to the server, and must
-    override the handle() method to implement communication to the
-    client.
-    """
+class ThreadedTCPRequestHandler(socketserver.BaseRequestHandler):
+    def setup(self):
+        print("New client connected: " + str(threading.current_thread()), end=' ')
+        print(self.client_address)
+        print("Active threads: " + str(threading.active_count()))
+
+    def finish(self):
+        print("Client disconnected: " + str(threading.current_thread()), end=' ')
+        print(self.client_address)
+
 
     def handle(self):
-        data = self.request.recv(6)
-        logging.info("Received data: %s Lenght of data: %s", data, len(data))
+        while True:
+            data = self.request.recv(6)
+            logging.info("Received data: %s Lenght of data: %s", data, len(data))
+            print(self.client_address, end='- ')
+            # process if data is correct
+            if not data:
+                logging.info("Data was not correct, check data!")
+                logging.debug("Given data:%s", data)
+            else:
+                logging.debug("Received data are correct")
+                ProcessData(data)
 
-        # process if it is correct
-        if not data:
-            logging.info("Data was not correct, check data!")
-            logging.debug("Given data:%s", data)
-        else:
-            logging.debug("Received data are correct")
-            ProcessData(data)
+            # send a response
+            reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
+            self.request.sendall(reply)
+            logging.info("Reply from server to PLC was %s", reply)
 
-        # send a response
-        reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
-        self.request.sendall(reply)
-        logging.info("Reply from server to PLC was %s", reply)
 
+class ThreadedTCPServer(socketserver.ThreadingMixIn, socketserver.TCPServer):
+    pass
 
 
 if __name__ == "__main__":
-    HOST, PORT = "localhost", 4097
+    # Port 0 means to select an arbitrary unused port
+    HOST, PORT = "0.0.0.0", 4097
 
-    # Create the server, binding to localhost on port 9999
-    with socketserver.TCPServer((HOST, PORT), MyTCPHandler) as server:
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
+    server = ThreadedTCPServer((HOST, PORT), ThreadedTCPRequestHandler)
+    with server:
+        print("Server started")
         server.serve_forever()
+
