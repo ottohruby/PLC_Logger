@@ -4,12 +4,12 @@ import time
 from config import *
 import threading
 import logging
-#Initialization of logging into log file
-logging.basicConfig(filename='sys_log/'+GetDate("file")+'.log', encoding = 'utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
+#Initialization of logging into log fie
+logging.basicConfig(filename='sys_log/'+GetDate("file")+'.log',encoding='utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 def ParsePLCResponse(aData):
     # read and split data from client
-    # first: error no., second: model, third: process no.
+    # first: error no., second: process, third: model no.
     errorNo = int.from_bytes(aData[0:2], byteorder='little', signed=False)
     processNo = int.from_bytes(aData[2:4], byteorder='little', signed=False)
     modelNo = int.from_bytes(aData[4:6], byteorder='little', signed=False)
@@ -54,15 +54,15 @@ class ThreadedServer():
             try:
                 data = connection.recv(6)
                 logging.info("Received data: %s Lenght of data: %s",data,len(data))
-            except socket.error as e:
+            except socket.error:
                 logging.info("Could not received data from PLC, given data %s",data)
-                logging.error(e, exc_info=True)
+                logging.error(socket.error)
                 print("Could not receive data from PLC")
                 break
             #print(f"Received data: {data}")
-            
+            data_parsed = ParsePLCResponse(data)  # words to tuple (ErrorNo,ProcessNo,ModelNo)
+
             try:
-                data_parsed = ParsePLCResponse(data)  # words to tuple (ErrorNo,ProcessNo,ModelNo)
                 LineOfLog = CreateRow(Get_Err(data_parsed[0],data_parsed[1]))
                 WriteRow(LineOfLog, data_parsed[1])
                 process = Get_Machine_From_Process(data_parsed[1])

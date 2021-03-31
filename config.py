@@ -42,7 +42,7 @@ def Get_Err(data,process):
     try:
         rows = err_df.loc[err_df['Index'] == data]
         if len(rows) == 1:
-            return rows['ErrorEng'].iloc[0]
+            return rows['ErrorEng'].iat[0]
         else:
             raise ConfigError()
     except Exception as e:
@@ -89,7 +89,7 @@ def CreateRow(error,event="E03"):
 def WriteRow(data,processNo,model="533"):
     systemName = platform.system()
     if systemName == "Windows":
-        DefaultPath = "C:/ShareData/Process{}/EasyProgram/Production inf/1AA-SA00337A [RSZL]/ProdLog".format(processNo)
+        DefaultPath = "C:/ShareData/Process{}/EasyProgram/Production inf/1AA-SA00533A/ProdLog".format(processNo)
     elif systemName == "Darwin":  # Mac
         DefaultPath = "/Users/げんちゃん/Server"
     else:  # Linux
