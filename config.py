@@ -129,7 +129,7 @@ def CreateRow(error,event="E03"):
         raise ConfigError(f"ERROR in CreateRow({error},{event}): Parameters must be strings")
 
     now = datetime.datetime.now()
-    now = now.strftime("%Y/%m/%d/ %H:%M:%S")
+    now = now.strftime("%y/%m/%d %H:%M:%S")
     LineOfFile = now + "," + event + "," + error
     return LineOfFile
 #
