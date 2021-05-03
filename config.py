@@ -130,7 +130,7 @@ def CreateRow(error,event="E03"):
 
     now = datetime.datetime.now()
     now = now.strftime("%y/%m/%d %H:%M:%S")
-    LineOfFile = now + "," + event + "," + error
+    LineOfFile = now + "," + event + ",Increment arbitrary counter," + error
     return LineOfFile
 #
 def WriteRow(data,processNo,model="533"):
@@ -144,7 +144,7 @@ def WriteRow(data,processNo,model="533"):
 
     systemName = platform.system()
     if systemName == "Windows":
-        DefaultPath = "C:/ShareData/Process{}/ProdLog".format(processNo)
+        DefaultPath = "C:/ShareData/Process{}/EasyProgram/Production inf/1AA-SA0533A/ProdLog".format(processNo)
     elif systemName == "Darwin":  # Mac
         DefaultPath = "/Users/げんちゃん/Server"
     else:  # Linux
