@@ -4,6 +4,7 @@ import datetime
 import pandas as pd
 import platform
 import structures
+import os
 #
 class ConfigError(Exception):
     pass
@@ -35,7 +36,6 @@ def ErrorList(path):
     :param path: Path to csv file
     :return: Data frame
     """
-
     ListOfNames = ['Index','ErrorEng','ErrorCz','Data4','Data5','Data6','Data7','Data8','Data9','Data10','Data11']
     try:
         df = pd.read_csv(path, names = ListOfNames)
@@ -65,7 +65,8 @@ def Get_Err(data,process):
     :param process: Number of process
     :return: Error description
     """
-    err_df = ErrorList("Errors/error_p"+str(process)+".csv")
+    script_dir = os.path.dirname(os.path.realpath(__file__))
+    err_df = ErrorList(script_dir + "/Errors/error_p" + str(process) + ".csv")
     try:
         rows = err_df.loc[err_df['Index'] == data]
         if len(rows) == 1:
@@ -133,7 +134,7 @@ def CreateRow(error,event="E03"):
 
     now = datetime.datetime.now()
     now = now.strftime("%y/%m/%d %H:%M:%S")
-    LineOfFile = now + "," + event + ",Increment arbitrary counter," + error
+    LineOfFile = now + "," + event + ",Increment arbitrary counter," + error + ",1"
     return LineOfFile
 #
 def WriteRow(data,processNo,model="533"):

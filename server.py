@@ -4,9 +4,8 @@ import time
 from config import *
 import threading
 import logging
+import os
 
-#Initialization of logging into log fie
-logging.basicConfig(filename='sys_log/'+GetDate("file")+'.log', encoding = 'utf-8', level=logging.DEBUG, format='%(asctime)s %(message)s')
 
 def ParsePLCResponse(aData):
     # read and split data from client
@@ -111,6 +110,13 @@ class ThreadedServer():
 
 
 if __name__ == "__main__":
+    # Create sys_log folder in script directory if it does not exists
+    logger_dir = os.path.dirname(os.path.realpath(__file__)) + '/sys_log/'
+    Path(logger_dir).mkdir(parents=True, exist_ok=True)
+    # Initialization of logging
+    logging.basicConfig(filename=logger_dir + GetDate("file") + '.log', level=logging.DEBUG,
+                        format='%(asctime)s %(message)s')
+
     HOST = '0.0.0.0'
     PORT = 4097
 
