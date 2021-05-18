@@ -111,9 +111,9 @@ def FileChk(path):
     path = path +"/"+  filename
     try:
         if not Path(path).is_file():
-            f = open(path, "w")
+            f = open(path, "w", encoding='utf-16-le')
         else:
-            f = open(path, "a")
+            f = open(path, "a", encoding='utf-16-le')
     except Exception as e:
         raise ConfigError(f"ERROR in FileChk({path}): Could not open the file")
     return f
