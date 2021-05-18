@@ -3,7 +3,6 @@ from pathlib import Path
 import datetime
 import pandas as pd
 import platform
-import numpy as np
 import structures
 #
 class ConfigError(Exception):
@@ -111,9 +110,9 @@ def FileChk(path):
     path = path +"/"+  filename
     try:
         if not Path(path).is_file():
-            f = open(path, "w", encoding='utf-16-le')
+            f = open(path, "w", encoding='utf-16')
         else:
-            f = open(path, "a", encoding='utf-16-le')
+            f = open(path, "a", encoding='utf-16')
     except Exception as e:
         raise ConfigError(f"ERROR in FileChk({path}): Could not open the file")
     return f
