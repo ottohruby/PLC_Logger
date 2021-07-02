@@ -1,5 +1,5 @@
 #
-PROCESS_NO_DIC = {
+PROCESS_TEXT_DIC = {
 1:"Simple Tray",
 2:"Trans.A",
 3:"Rotary",
@@ -25,7 +25,7 @@ PROCESS_NO_DIC = {
 23:"Robot3",
 }
 #
-EVENT_NO_DIC = {
+EVENT_CODE_DIC = {
 1:"A0",
 2:"A1",
 3:"A2",
@@ -39,35 +39,28 @@ EVENT_NO_DIC = {
 15:"D06",
 16:"D16",
 24:"D15",
-34:"E00",
-35:"E01",
-36:"E02",
+34:"E0",
+35:"E1",
+36:"E2",
 37:"E03",
 }
 #
-EVENT_DIC = {
+EVENT_TEXT_DIC = {
 1:"Mass Production Start",
 2:"Mass Production Finish",
 3:"Edit screen switch",
 4:"Model change",
 5:"Operation mode change",
-9:"Origin return start",
-10:"Origin return finish",
-11:"Origin return Err",
+9:"Start origin return",
+10:"Origin return complete",
+11:"Origin return error",
 13:"1 cycle start",
-14:"Continoues operation start",
+14:"Start continuous operation",
 15:"1cycle operation is completed",
-16:"Log messeage",
+16:"Log message",
 24:"Error reset",
 34:"Production counter Up",
 35:"Quantity counter Up",
 36:"NG counter Up",
 37:"Increment arbitrary counter",
 }
-
-# processNo = 1000
-# try:
-#     print(PROCESS_NO_DIC[int(processNo)])
-# except KeyError as e:
-#     print(f"Get_Device_Fromm_Process({processNo}): A machine with this processNo is not defined")
-#     print(processNo)
