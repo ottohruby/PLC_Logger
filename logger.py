@@ -32,38 +32,41 @@ class LoggerError(Exception):
 
 
 class Info(object):
-    def __init__(self, raw):
+    def __init__(self, received):
         """
         Contains basic information which are extracted from given data.
         Public methods:
             text() - Returns String which depends on event_code
         Public members:
             time - String with actual time
-            data - Int received from PLC as word 1
-            process - Int received from PLC as word 2
+            data -
+            process -
             process_text - String from PROCESS_TEXT_DIC
-            event - Int received from PLC as word 3
+            event -
             event_text - String from EVENT_TEXT_DIC
             event_code - String from EVENT_CODE_DIC
-            model -  Int received from PLC as word 4
+            model -
             model_text - TODO
 
-        :param raw: Received bytes
+        :param received: Received bytes
         """
 
         self.time = datetime.datetime.now().strftime("%y/%m/%d %H:%M:%S")
-        self._words = bytes_to_words_tuple(raw, length=4)
+        self._received = received
 
-        self.data = self._words[0]
+        self.data = self._received[0] # TODO to int only in specific
+        try:
+            self.process = int(self._received[1])
+            self.event = int(self._received[2])
+            self.model = int(self._received[3])
+        except ValueError as e:
+            raise LoggerError(f"{e}")
 
-        self.process = self._words[1]
         self.process_text = self._process_text()
 
-        self.event = self._words[2]
         self.event_text = self._event_text()
         self.event_code = self._event_code()
 
-        self.model = self._words[3]
         self.model_text = DEFAULT_MODEL  # TODO
 
     def _process_text(self):
@@ -146,14 +149,14 @@ class Info(object):
 
 
 class Logger(object):
-    def __init__(self, plc_data):
+    def __init__(self, info):
         """
         Used to log received data.
         This class has no public methods and no public members.
 
-        :param plc_data: Bytes received from PLC
+        :param info: Info object
         """
-        self._info = Info(plc_data)
+        self._info = info
         self._folder_path = self._build_folder_path()
         self._file_path = f"{self._folder_path}/ProdLog_{get_date('file')}.csv"
         self._file = self._open_file()

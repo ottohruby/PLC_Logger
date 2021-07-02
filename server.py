@@ -68,9 +68,9 @@ class ThreadedServer(object):
         """
         while True:
             data = None
-
+            reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
             try:  # Wait for data
-                data = connection.recv(6)
+                data = connection.recv(128)
                 logging.info("Received data: %s Length of data: %s", data, len(data))
             except socket.error as e:
                 logging.info("Could not received data from PLC, given data %s", data)
@@ -81,7 +81,7 @@ class ThreadedServer(object):
             logging.debug(f"Received data: {data}")
 
             try:  # Log received data
-                Logger(data)
+                log = Logger(data)
             except LoggerError:
                 pass
             except Exception as e:
@@ -89,19 +89,23 @@ class ThreadedServer(object):
                 logging.error(e, exc_info=True)
                 print(e)
                 time.sleep(0.1)
+            else:
+                if log.device == "robot":
+                    reply = b'Ok,\r'
 
             # Send a response
-            reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
             if not data:
                 logging.info("Info was not correct, check data!")
                 logging.debug("Given data:%s", data)
                 break
+
 
             connection.send(reply)
             logging.info("Reply from server to PLC was %s", reply)
 
         connection.close()
         logging.debug("Connection was closed")
+
 
 
 if __name__ == "__main__":
