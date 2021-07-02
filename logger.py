@@ -123,11 +123,16 @@ class Info(object):
         except Exception:
             raise LoggerError(f"Could not extract specified csv file: {path}")
 
-        rows = err_df.loc[err_df['Index'] == self.data]['ErrorEng']
+        try:
+            error_no = int(self.data)
+        except ValueError as e:
+            raise LoggerError(f"{e}")
+        
+        rows = err_df.loc[err_df['Index'] == error_no]['ErrorEng']
         if len(rows) == 1:
             return rows.fillna(f"Error {self.data}").iat[0]
         if len(rows) == 0:
-            raise LoggerError(f"There is no error with code ({self.data}) in csv file: {script_dir}")
+            raise LoggerError(f"There is no error with code ({self.data}) in csv file: {path}")
         else:
             raise LoggerError(f"There are more errors with code ({self.data}) in csv file: {script_dir}")
 
@@ -143,6 +148,10 @@ class Info(object):
             error = self._error_description()
             text += "," + error + "," + "1"
             print(f"{self.process_text} had error: {error}")
+
+        if self.event_code == "D16":
+            text += "," + self.data
+            print(f"{self.process_text} log message: {self.data}")
 
         logging.info(f"{self.process_text} had event: {self.event_text}")
         return text
