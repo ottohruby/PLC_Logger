@@ -134,7 +134,7 @@ class Info(object):
         if len(rows) == 0:
             raise LoggerError(f"There is no error with code ({self.data}) in csv file: {path}")
         else:
-            raise LoggerError(f"There are more errors with code ({self.data}) in csv file: {script_dir}")
+            raise LoggerError(f"There are more errors with code ({self.data}) in csv file: {path}")
 
     def text(self):
         """
