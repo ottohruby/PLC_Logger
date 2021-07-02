@@ -1,6 +1,6 @@
 import socket
 import time
-from logger import Logger, LoggerError
+import logger
 import threading
 import logging
 import os
@@ -8,7 +8,7 @@ from pathlib import Path
 from utils import *
 
 HOST = '0.0.0.0'
-PORT = 4097
+PORT = 49901
 
 
 class ThreadedServer(object):
@@ -66,9 +66,9 @@ class ThreadedServer(object):
         :param connection: Client's socket
         :return: None
         """
+        print("Ok")
         while True:
             data = None
-            reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # debug
             try:  # Wait for data
                 data = connection.recv(128)
                 logging.info("Received data: %s Length of data: %s", data, len(data))
@@ -80,25 +80,29 @@ class ThreadedServer(object):
 
             logging.debug(f"Received data: {data}")
 
+            # No data received
+            if not data:
+                logging.info("Info was not correct, check data!")
+                logging.debug("Given data:%s", data)
+                break
+
+            if b'\r' in data:
+                reply = b'OK\r'  # robot, debug
+                data = binary_string_to_tuple(data, 4, '\r')
+            else:
+                reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # plc, debug
+                data = binary_bytes_to_tuple(data, 4)
+
             try:  # Log received data
-                log = Logger(data)
-            except LoggerError:
+                info = logger.Info(data)
+                logger.Logger(info)
+            except logger.LoggerError:
                 pass
             except Exception as e:
                 logging.info('Unexpected error has happened in logger.py')
                 logging.error(e, exc_info=True)
                 print(e)
                 time.sleep(0.1)
-            else:
-                if log.device == "robot":
-                    reply = b'Ok,\r'
-
-            # Send a response
-            if not data:
-                logging.info("Info was not correct, check data!")
-                logging.debug("Given data:%s", data)
-                break
-
 
             connection.send(reply)
             logging.info("Reply from server to PLC was %s", reply)
