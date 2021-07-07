@@ -8,7 +8,6 @@ def get_date(mode):
     :param mode: Selected mode (file or folder)
     :return: Current date
     """
-
     today = datetime.date.today()
     if mode == "file":
         return today.strftime("%y%m%d")
@@ -28,10 +27,8 @@ def binary_bytes_to_tuple(raw, length, byteorder='little', signed=False):
     :param signed: Select True if input data are signed
     :return: Tuple of integers, the length is equal to given length
     """
-
     raw += b'\x00' * (length * 2 - len(raw))  # Fill data to fit specified length with zeros
     return tuple(int.from_bytes(pair, byteorder=byteorder, signed=signed) for pair in zip(raw[::2], raw[1::2]))
-
 
 
 def binary_string_to_tuple(raw, length, delimiter=None, encoding='ascii'):
@@ -47,5 +44,5 @@ def binary_string_to_tuple(raw, length, delimiter=None, encoding='ascii'):
     delimiter = delimiter.encode(encoding=encoding) if delimiter else None
     chunks = raw.rstrip(delimiter).split(b',')
     chunks = [chunk.decode(encoding=encoding) for chunk in chunks]
-    chunks += [0] * (length - len(chunks)) # Fill data to fit specified length with zeros
+    chunks += [0] * (length - len(chunks))  # Fill data to fit specified length with zeros
     return tuple(chunks)

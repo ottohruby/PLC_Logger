@@ -39,14 +39,14 @@ class Info(object):
             text() - Returns String which depends on event_code
         Public members:
             time - String with actual time
-            data -
-            process -
+            data - Received at index 0
+            process - Received at index 1
             process_text - String from PROCESS_TEXT_DIC
-            event -
+            event - Received at index 2
             event_text - String from EVENT_TEXT_DIC
             event_code - String from EVENT_CODE_DIC
-            model -
-            model_text - TODO
+            model - Received at index 3
+            model_text - TODO Not used yet
 
         :param received: Received bytes
         """
@@ -54,13 +54,13 @@ class Info(object):
         self.time = datetime.datetime.now().strftime("%y/%m/%d %H:%M:%S")
         self._received = received
 
-        self.data = self._received[0] # TODO to int only in specific
+        self.data = self._received[0]
         try:
             self.process = int(self._received[1])
             self.event = int(self._received[2])
             self.model = int(self._received[3])
         except ValueError as e:
-            raise LoggerError(f"{e}")
+            raise LoggerError(f"Received data could not been converted to int: {e}")
 
         self.process_text = self._process_text()
 
@@ -126,11 +126,12 @@ class Info(object):
         try:
             error_no = int(self.data)
         except ValueError as e:
-            raise LoggerError(f"{e}")
+            raise LoggerError(f"Error number could not been converted to int: {e}")
         
         rows = err_df.loc[err_df['Index'] == error_no]['ErrorEng']
         if len(rows) == 1:
             return rows.fillna(f"Error {self.data}").iat[0]
+
         if len(rows) == 0:
             raise LoggerError(f"There is no error with code ({self.data}) in csv file: {path}")
         else:
@@ -168,14 +169,13 @@ class Logger(object):
         self._info = info
         self._folder_path = self._build_folder_path()
         self._file_path = f"{self._folder_path}/ProdLog_{get_date('file')}.csv"
-        self._file = self._open_file()
         self._write()
 
     def _build_folder_path(self):
         """
         Builds path where logging file should be located.
 
-        :return: Path
+        :return: String
         """
         specific = f"Process{self._info.process}/EasyProgram/Production inf/{self._info.model_text}/ProdLog"
         return f"{DEFAULT_PATH}/{specific}/{get_date('folder')}"
@@ -191,30 +191,18 @@ class Logger(object):
         except Exception:
             raise LoggerError(f"Could not create logging folder: {self._file_path}")
 
-    def _open_file(self):
-        """
-        Opens the logging file.
-        If the logging file does not exists then it will be created.
-
-        :return: File
-        """
-        self._check_folder_path()
-        try:
-            f = open(self._file_path, "a", encoding=ENCODING)
-        except Exception:
-            raise LoggerError(f"ERROR in FileChk({self._file_path}): Could not open the file")
-        return f
-
     def _write(self):
         """
         Writes text extracted from Info object to file.
 
         :return: None
         """
-        if not self._file:
-            self._open_file()
-
+        self._check_folder_path()
         log_data = self._info.text()
-        f = self._open_file()
-        f.write(log_data + "\n")
-        f.close()
+        try:
+            with open(self._file_path, "a", encoding=ENCODING) as file:
+                file.write(log_data + "\n")
+        except EnvironmentError:
+            raise LoggerError(f"Could not open the file: {self._file_path}")
+
+

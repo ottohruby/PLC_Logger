@@ -28,7 +28,7 @@ class ThreadedServer(object):
         try:
             self.ServerSocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             self.ServerSocket.bind((host, port))
-            logging.info("Socket was bound %s", port)
+            logging.info(f"Socket was bound {port}")
         except socket.error as e:
             logging.error(e, exc_info=True)
             print(str(e))
@@ -50,7 +50,7 @@ class ThreadedServer(object):
                 client, address = self.ServerSocket.accept()
                 print(f"Connected to: {address[0]}:{address[1]}")
                 threading.Thread(target=self.listen_to_client, args=(client,)).start()
-                logging.info("New connection added %s", client)
+                logging.info(f"New connection added {client}")
                 print(f"Number active of threads: {threading.active_count()}")
                 print(f"List of threads: {threading.enumerate()}")
             except socket.error as e:
@@ -66,32 +66,36 @@ class ThreadedServer(object):
         :param connection: Client's socket
         :return: None
         """
-        print("Ok")
+
         while True:
             data = None
-            try:  # Wait for data
+            try:  # Receive data
                 data = connection.recv(128)
-                logging.info("Received data: %s Length of data: %s", data, len(data))
+                logging.info(f"Received data: {data}, Length of data: {len(data)}")
             except socket.error as e:
-                logging.info("Could not received data from PLC, given data %s", data)
+                logging.error(f"Could not receive data, given data {data}")
                 logging.error(e, exc_info=True)
-                print("Could not receive data from PLC")
+                print("Could not receive data")
                 break
 
             logging.debug(f"Received data: {data}")
 
-            # No data received
-            if not data:
-                logging.info("Info was not correct, check data!")
-                logging.debug("Given data:%s", data)
+            if not data:  # No data received
+                logging.error("Data were not received, check data!")
+                logging.debug(f"Given data: {data}")
                 break
 
-            if b'\r' in data:
-                reply = b'OK\r'  # robot, debug
-                data = binary_string_to_tuple(data, 4, '\r')
-            else:
-                reply = int.to_bytes(123, length=6, byteorder='little', signed=False)  # plc, debug
-                data = binary_bytes_to_tuple(data, 4)
+            reply = int.to_bytes(123, length=6, byteorder='little', signed=False)
+            try:  # Select which machine sent data and decode them
+                if b'\r' in data:
+                    # The robot sends \r delimiter and it must receive the same delimiter back at the end of the message
+                    reply = b'OK\r'
+                    data = binary_string_to_tuple(data, 4, '\r')
+                else: # PLC
+                    data = binary_bytes_to_tuple(data, 4)
+            except Exception as e:
+                logging.error("An unexpected error has happened in utils.py")
+                logging.error(e, exc_info=True)
 
             try:  # Log received data
                 info = logger.Info(data)
@@ -99,17 +103,16 @@ class ThreadedServer(object):
             except logger.LoggerError:
                 pass
             except Exception as e:
-                logging.info('Unexpected error has happened in logger.py')
+                logging.error('Unexpected error has happened in logger.py')
                 logging.error(e, exc_info=True)
                 print(e)
                 time.sleep(0.1)
 
             connection.send(reply)
-            logging.info("Reply from server to PLC was %s", reply)
+            logging.info(f"Reply from server to was {reply}")
 
         connection.close()
-        logging.debug("Connection was closed")
-
+        logging.info("Connection was closed")
 
 
 if __name__ == "__main__":
